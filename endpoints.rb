@@ -7,6 +7,7 @@ class ChimeraEndpoint
 #  debug_output $stderr
   base_uri ENV["CHIMERA_URL"]
   default_params :auth_token => ENV["CHIMERA_AUTH_TOKEN"]
+  default_params :atlas_auth_token => ENV["ATLAS_AUTH_TOKEN"]
   format :json
 
   class << self
