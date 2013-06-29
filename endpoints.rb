@@ -4,7 +4,7 @@ require 'json'
 
 class ChimeraEndpoint
   include HTTParty
-  debug_output $stderr
+#  debug_output $stderr
   base_uri ENV["CHIMERA_URL"]
   default_params :auth_token => ENV["CHIMERA_AUTH_TOKEN"]
   format :json
