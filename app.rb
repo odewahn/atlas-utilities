@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'resque'
+require 'resque-status'
 require 'json'
 require './workers'
 require 'dotenv'
@@ -31,7 +32,8 @@ post "/permission" do
     :email => params[:email], 
     :isbn => params[:isbn]
   }
-  Resque.enqueue(PermissionWorker, msg)
+  job = PermissionWorker.create(msg)
+  JSON.pretty_generate( { :id => job } )
 end
 
 
@@ -49,5 +51,7 @@ post "/checklist" do
     :checklist => params[:checklist],
     :body => params[:body]
   }
-  Resque.enqueue(ChecklistWorker, msg)
+  job = ChecklistWorker.create(msg)
+  JSON.pretty_generate( { :id => job} )
+
 end
