@@ -7,7 +7,7 @@ Dotenv.load
 
 # Set up very simple, simple auth!
 use Rack::Auth::Basic, "Restricted Area" do |username, password|
-  [username, password] == [ENV[UTILITY_USERNAME], ENV[UTILITY_PASSWORD]]
+  [username, password] == [ENV["UTILITY_USERNAME"], ENV["UTILITY_PASSWORD"]]
 end
 
 run Rack::URLMap.new \
