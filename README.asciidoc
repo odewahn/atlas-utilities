@@ -5,9 +5,11 @@ This repo contains various utilities for Atlas.
 
 * Set up configuration variables in *.env* file.  Make sure to use the staging credentials.
 * Install (if necessary) and start the redis server.
+* Start the app using "shotgun" (or whatever)
+* Start the workers using "rake resque:work QUEUE=*"
 
 === Running on Production/Heroku
 
 * Set up the environment variables using "heroku config:add".  Be sure to use production variables.
 * Add "Redis to go"
-* Scale the app "heroku ps:scale web=2 worker=1"
+* Scale the app "heroku ps:scale worker=1"
