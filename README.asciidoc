@@ -6,10 +6,44 @@ This repo contains various utilities for Atlas.
 * Set up configuration variables in *.env* file.  Make sure to use the staging credentials.
 * Install (if necessary) and start the redis server.
 * Start the app using "shotgun" (or whatever)
-* Start the workers using "rake resque:work QUEUE=*"
+* Start the workers using "rake resque:work QUEUE=\*"
 
 === Running on Production/Heroku
 
 * Set up the environment variables using "heroku config:add".  Be sure to use production variables.
 * Add "Redis to go"
-* Scale the app "heroku ps:scale worker=1"
+* Scale the app "heroku ps:scale web=2 worker=1"
+
+
+==== Installing SSL certs on Heroku
+
+O'Reilly uses godaddy as a DNS and cert provider.  Installing certs from GoDaddy require an extra step on Heroku that is not covered in their otherwise excellent docs.  This post, link:http://www.bendytree.com/tips/Setup-A-GoDaddy-SSL-Certificate-on-Heroku[Setup A GoDaddy SSL Certificate on Heroku] , explains it pretty well, but the meat of it is that you have to concatenate the crt file from GoDaddy with the gd_bundle.crt file they provide, like this:
+
+----
+cat atlas-utilities.oreilly.com.crt gd_bundle.crt > combined.crt
+----
+
+You then have to use this combined file as your certificate:
+
+----
+heroku certs:add  combined.crt atlas-utilities.oreilly.com.key
+----
+
+If you don't do this, you'll keep getting this error:
+
+----
+Resolving trust chain... failed
+ !    No certificate given.
+----
+
+Finally, you have to have IT set up a CNAME to point to the new endpoint.  The important thing to remember is that you have to give them the SSL endpoint, which you can get from the command "heroku certs":
+
+----
+$ heroku certs
+Endpoint                  Common Name(s)                                                Expires               Trusted
+------------------------  ------------------------------------------------------------  --------------------  -------
+tokyo-5211.herokussl.com  atlas-utilities.oreilly.com, www.atlas-utilities.oreilly.com  2016-07-03 18:56 UTC  True
+----
+
+
+----
