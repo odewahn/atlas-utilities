@@ -23,7 +23,11 @@ get '/*.json' do
 end
 
 get '/*' do
-  halt 404 unless request.secure?
+  if request.secure?
+    pass
+  else
+   halt 404
+  end
 end
 
 #**********************************************************************
