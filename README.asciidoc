@@ -45,7 +45,7 @@ Endpoint                  Common Name(s)                                        
 tokyo-5211.herokussl.com  atlas-utilities.oreilly.com, www.atlas-utilities.oreilly.com  2016-07-03 18:56 UTC  True
 ----
 
-You won't be able to access the app until the CNAME is set up.  O'Reilly runs it's own DNS server, so we set up the CNAME in a a mysql database.  It should look like this:
+You won't be able to access the app until the CNAME is set up.  O'Reilly runs its own DNS server, so we set up the CNAME in a a mysql database.  It should look like this:
 
 ----
 +-------+-----------+-----------------------------+-------+------+------+--------------------------+
@@ -55,4 +55,4 @@ You won't be able to access the app until the CNAME is set up.  O'Reilly runs it
 +-------+-----------+-----------------------------+-------+------+------+--------------------------+
 ----
 
-*Closing off the app on port 80.   I need to figure out is this is a backdoor if we onlly want this to go through port 443*
+*Closing off the app on port 80.   I need to figure out is this is a backdoor if we only want this to go through port 443*
