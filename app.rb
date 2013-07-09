@@ -13,7 +13,18 @@ uri = URI.parse(ENV["REDIS_URL"])
 Resque.redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password, :thread_safe => true)
 
 
+#**********************************************************************
+# Adds redirection for HTTP to HTTPS
+#**********************************************************************
+get '/*.json' do
+  pass if request.secure?
+  content_type :json
+  '{ "message" : "You are using http. Please use https" }'
+end
 
+get '/*' do
+  halt 404 unless request.secure?
+end
 
 #**********************************************************************
 # This section handles code related to adding a permission to an account
