@@ -38,6 +38,7 @@ class PermissionWorker
        log(@logger, @queue, process_id, "Created permission")
     rescue Exception => e
        log(@logger, @queue, process_id, "ERROR #{e}")
+       raise e
     end
   end
   
@@ -62,6 +63,7 @@ class ChecklistWorker
        log(@logger, @queue, process_id, "Created new github issue")
      rescue Exception => e
         log(@logger, @queue, process_id, "Could not connect to github API - #{e}")
+        raise e
      end
      
    end
