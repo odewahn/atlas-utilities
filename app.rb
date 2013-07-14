@@ -23,6 +23,7 @@ get '/*.json' do
 end
 
 get '/*' do
+  pass if ENV["ENVIRONMENT"] == "development"
   if request.secure?
     pass
   else
