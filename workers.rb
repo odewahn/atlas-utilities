@@ -6,6 +6,7 @@ require 'dotenv'
 require 'logger'
 require 'resque'
 require 'resque-status'
+require 'gauges'
 
 Dotenv.load
 
@@ -68,4 +69,24 @@ class ChecklistWorker
      
    end
    
+end
+
+class GaugesWorker
+  
+  include Resque::Plugins::Status
+  @queue = "gauges_worker"
+  @logger ||= Logger.new(STDOUT)   
+  @client = Gauges.new(:token => ENV['GAUGES_TOKEN'])
+    
+  def self.perform(process_id, msg)
+     log(@logger, @queue, process_id, "Attempting to grab gauges data for #{msg}")
+     begin
+        JSON.pretty_generate(@client.gauges)
+     rescue Exception => e
+        log(@logger, @queue, process_id, "The following error occurred: #{e}")
+        raise e
+     end
+     
+  end
+
 end

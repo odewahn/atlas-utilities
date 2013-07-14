@@ -67,3 +67,21 @@ post "/checklist" do
   JSON.pretty_generate( { :id => job} )
 
 end
+
+#**********************************************************************
+# This section handles code related to stuffing gauges data into a table
+#**********************************************************************
+get "/gauges" do
+  erb :gauges
+end
+
+post "/gauges" do
+  msg = {
+    :date => params[:date], 
+    :gauge => params[:gauge],
+
+  }
+  job = GaugesWorker.create(msg)
+  JSON.pretty_generate( { :id => job} )
+
+end
