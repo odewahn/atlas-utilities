@@ -7,6 +7,7 @@ require 'logger'
 require 'resque'
 require 'resque-status'
 require 'gauges'
+require 'redis'
 
 Dotenv.load
 
@@ -77,11 +78,26 @@ class GaugesWorker
   @queue = "gauges_worker"
   @logger ||= Logger.new(STDOUT)   
   @client = Gauges.new(:token => ENV['GAUGES_TOKEN'])
+  
+  uri = URI.parse(ENV["REDIS_URL"])
+  @redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
     
   def self.perform(process_id, msg)
      log(@logger, @queue, process_id, "Attempting to grab gauges data for #{msg}")
      begin
-        JSON.pretty_generate(@client.gauges)
+        date = msg["date"].length > 0 ? msg["date"] : Time.now.strftime("%Y-%m-%d")
+        max_pages = msg["max_pages"].length > 0 ? msg["max_pages"].to_i : 20
+        for idx in 1..max_pages
+           key = "chimera:#{date}:#{idx}"
+           if !@redis.exists(key)
+              log(@logger, @queue, process_id, "Trying key #{key}")  
+              p = @client.content(ENV["GAUGES_ID"], {:date => date, :page => idx} )
+              @redis.set(key,p)
+              # make sure these only persist about an hour
+              @redis.expire(key, 3600) 
+              log(@logger, @queue, process_id, "Wrote #{key} with #{p['content'].count} results")  
+           end
+        end         
      rescue Exception => e
         log(@logger, @queue, process_id, "The following error occurred: #{e}")
         raise e

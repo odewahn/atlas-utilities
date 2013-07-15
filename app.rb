@@ -80,6 +80,7 @@ post "/gauges" do
   msg = {
     :date => params[:date], 
     :gauge => params[:gauge],
+    :max_pages => params[:max_pages]
 
   }
   job = GaugesWorker.create(msg)
