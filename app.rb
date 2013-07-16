@@ -4,6 +4,7 @@ require 'resque-status'
 require 'json'
 require './workers'
 require 'dotenv'
+require 'redis'
 
 Dotenv.load
 
@@ -11,6 +12,8 @@ Dotenv.load
 # Point to the correct 
 uri = URI.parse(ENV["REDIS_URL"])
 Resque.redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password, :thread_safe => true)
+
+redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password, :thread_safe => true)
 
 
 #**********************************************************************
@@ -76,6 +79,15 @@ get "/gauges" do
   erb :gauges
 end
 
+get "/gauges/:date" do
+  if redis.exists("chimera:#{params[:date]}")
+     JSON.pretty_generate(eval(redis.get("chimera:#{params[:date]}")))
+  else
+     halt 404
+  end
+end
+
+
 post "/gauges" do
   msg = {
     :date => params[:date], 
@@ -85,5 +97,4 @@ post "/gauges" do
   }
   job = GaugesWorker.create(msg)
   JSON.pretty_generate( { :id => job} )
-
 end

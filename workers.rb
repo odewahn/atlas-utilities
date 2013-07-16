@@ -87,19 +87,35 @@ class GaugesWorker
      begin
         date = msg["date"].length > 0 ? msg["date"] : Time.now.strftime("%Y-%m-%d")
         max_pages = msg["max_pages"].length > 0 ? msg["max_pages"].to_i : 20
-        @redis.del("chimera:#{date}:pages")
+        total_views = 0
+        total_book_views = 0
+        summary = {}
         for idx in 1..max_pages
-           key = "chimera:#{date}:#{idx}"
-           @redis.sadd("chimera:#{date}:pages", key)
-           if !@redis.exists(key)
-              log(@logger, @queue, process_id, "Trying key #{key}")  
-              p = @client.content(ENV["GAUGES_ID"], {:date => date, :page => idx} )
-              @redis.set(key,p)
-              # make sure these only persist about an hour
-              @redis.expire(key, 3600) 
-              log(@logger, @queue, process_id, "Wrote #{key} with #{p['content'].count} results")  
-           end
-        end         
+          log(@logger, @queue, process_id, "Fetching page #{idx}")
+          p = @client.content(ENV["GAUGES_ID"], {:date => date, :page => idx} )
+          p["content"].each do |c|
+             total_views += c["views"].to_i
+             path = c["path"].split("/")
+             if path.length > 2
+               if path[1] == "books"
+                 isbn = path[2]
+                 if summary.has_key?(isbn)
+                    summary[isbn] += c["views"].to_i 
+                 else
+                   summary[isbn] = c["views"].to_i 
+                 end
+                 total_book_views += c["views"].to_i
+               end
+             end
+          end
+        end 
+        out = {
+          :date => date,
+          :total_views => total_views,
+          :total_book_views => total_book_views,
+          :books => summary
+        }
+        @redis.set("chimera:#{date}", out)        
      rescue Exception => e
         log(@logger, @queue, process_id, "The following error occurred: #{e} \n #{e.backtrace}")
         raise e
