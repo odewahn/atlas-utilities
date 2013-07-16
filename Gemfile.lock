@@ -7,6 +7,8 @@ GEM
       multipart-post (~> 1.1)
     faraday_middleware (0.9.0)
       faraday (>= 0.7.4, < 0.9)
+    gauges (0.2.1)
+      httparty (~> 0.7)
     hashie (2.0.5)
     httparty (0.11.0)
       multi_json (~> 1.0)
@@ -51,6 +53,7 @@ PLATFORMS
 
 DEPENDENCIES
   dotenv
+  gauges
   httparty
   mustache
   octokit
