@@ -87,8 +87,10 @@ class GaugesWorker
      begin
         date = msg["date"].length > 0 ? msg["date"] : Time.now.strftime("%Y-%m-%d")
         max_pages = msg["max_pages"].length > 0 ? msg["max_pages"].to_i : 20
+        @redis.del("chimera:#{date}:pages")
         for idx in 1..max_pages
            key = "chimera:#{date}:#{idx}"
+           @redis.sadd("chimera:#{date}:pages", key)
            if !@redis.exists(key)
               log(@logger, @queue, process_id, "Trying key #{key}")  
               p = @client.content(ENV["GAUGES_ID"], {:date => date, :page => idx} )
@@ -99,10 +101,10 @@ class GaugesWorker
            end
         end         
      rescue Exception => e
-        log(@logger, @queue, process_id, "The following error occurred: #{e}")
+        log(@logger, @queue, process_id, "The following error occurred: #{e} \n #{e.backtrace}")
         raise e
      end
-     
+     log(@logger, @queue, process_id, "Gauge data saved in redis db for 1 hour")     
   end
 
 end
