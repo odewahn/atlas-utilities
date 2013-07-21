@@ -117,7 +117,7 @@ end
 
 post "/pull_request_alert" do
   msg = {
-    :body => request.env["rack.input"].read
+    :body => request.body.read
   }
   job = CLAWorker.create(msg)
   JSON.pretty_generate( { :id => job} )
