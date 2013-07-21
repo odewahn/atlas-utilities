@@ -117,7 +117,7 @@ end
 
 post "/pull_request_alert" do
   msg = {
-    :payload => params[:payload]
+    :body => params[:body]
   }
   job = CLAWorker.create(msg)
   JSON.pretty_generate( { :id => job} )
