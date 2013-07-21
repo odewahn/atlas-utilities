@@ -72,6 +72,53 @@ class ChecklistWorker
    
 end
 
+
+# This worker adds a webhook to the specified repo.
+class WebhookWorker
+
+  include Resque::Plugins::Status
+  @queue = "webhook_worker"
+  @logger ||= Logger.new(STDOUT)   
+  @github_client ||= Octokit::Client.new(:login => ENV["GITHUB_LOGIN"], :oauth_token => ENV["GITHUB_TOKEN"])
+  
+  def self.perform(process_id, msg)
+    log(@logger, @queue, process_id, "Attempting to add webhook #{msg}")
+    begin
+       @github_client.create_hook(
+         msg["repo"],
+         'web',
+         {
+           :url => msg["callback"],
+           :content_type => 'json'
+         },
+         {
+           :events => ['pull_request'],
+           :active => true
+         }
+       )
+       log(@logger, @queue, process_id, "Created webhook")
+    rescue Exception => e
+       log(@logger, @queue, process_id, "Could not connect to github API - #{e}")
+       raise e
+    end
+  end
+end
+
+# This worker responds to a pull request sent to a repo and sends a CLS
+class CLAWorker
+
+  include Resque::Plugins::Status
+  @queue = "cla_worker"
+  @logger ||= Logger.new(STDOUT)   
+  
+  def self.perform(process_id, msg)
+    log(@logger, @queue, process_id, "CLA needs to be verified against this repo #{msg}")
+  end
+
+end
+
+
+
 class GaugesWorker
   
   include Resque::Plugins::Status

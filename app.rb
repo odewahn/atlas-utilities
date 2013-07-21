@@ -98,3 +98,27 @@ post "/gauges" do
   job = GaugesWorker.create(msg)
   JSON.pretty_generate( { :id => job} )
 end
+
+#**********************************************************************
+# This section handles code related to adding a webhook to a repo
+#**********************************************************************
+get "/webhook" do
+  erb :webhook
+end
+
+post "/webhook" do
+  msg = {
+    :repo => params[:repo], 
+    :callback => params[:callback]
+  }
+  job = WebhookWorker.create(msg)
+  JSON.pretty_generate( { :id => job} )
+end
+
+post "/pull_request_alert" do
+  msg = {
+    :payload => params[:payload]
+  }
+  job = CLAWorker.create(msg)
+  JSON.pretty_generate( { :id => job} )
+end
