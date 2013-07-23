@@ -138,7 +138,7 @@ class CLAWorker
     # Pull out the template from the checklist repo on github and process the variables using mustache
     c = @github_client.contents("oreillymedia/checklists", {:path => "legal/cla_missing.md"})
     checklist_text = Base64.decode64(c["content"])
-    log(@logger, @queue, process_id, "The raw message is #{checklist_test}")
+    log(@logger, @queue, process_id, "The raw message is #{checklist_text}")
     message_body = Mustache.render(checklist_text, dat).encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
     @github_client.create_issue(dat["base"]["full_name"], "ALERT! Atlas account required from #{dat["sender"]}", message_body)     
     
