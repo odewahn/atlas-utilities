@@ -110,9 +110,37 @@ class CLAWorker
   include Resque::Plugins::Status
   @queue = "cla_worker"
   @logger ||= Logger.new(STDOUT)   
+  @github_client ||= Octokit::Client.new(:login => ENV["GITHUB_LOGIN"], :oauth_token => ENV["GITHUB_TOKEN"])
   
   def self.perform(process_id, msg)
-    log(@logger, @queue, process_id, "CLA needs to be verified against this repo #{msg}")
+    dat = {
+       :issue_url => payload["pull_request"]["issue_url"],
+       :sender => payload["sender"]["login"],
+       :sender_url => payload["sender"]["url"],
+       :body => payload["pull_request"]["body"],
+       :diff_url => payload["pull_request"]["diff_url"],
+       "base" => {
+          :url => payload["pull_request"]["base"]["repo"]["html_url"],
+          :description => payload["pull_request"]["base"]["repo"]["description"],
+          :full_name => payload["pull_request"]["base"]["repo"]["full_name"],
+          :owner => payload["pull_request"]["base"]["repo"]["owner"]["login"],
+          :owner_url => payload["pull_request"]["base"]["repo"]["owner"]["url"]
+       },
+       "request" => {
+          :url => payload["pull_request"]["head"]["repo"]["html_url"],
+          :description => payload["pull_request"]["head"]["repo"]["description"],
+          :full_name => payload["pull_request"]["head"]["repo"]["full_name"],
+          :owner => payload["pull_request"]["head"]["repo"]["owner"]["login"],
+          :owner_url => payload["pull_request"]["head"]["repo"]["owner"]["url"]
+       }
+    }
+    # Pull out the template from the checklist repo on github and process the variables using mustache
+    c = @github_client.contents("oreillymedia/checklists",:path => msg["checklist"])
+    checklist_text = Base64.decode64(c["content"])
+    message_body = Mustache.render(checklist_text, dat).encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
+    log(@logger, @queue, process_id, "Retrieveved checklist and performed processed it with mustache template")
+    @github_client.create_issue("odewahn/test-sqs-api", "#{message_body[2..40]}...", message_body)     
+    
   end
 
 end
