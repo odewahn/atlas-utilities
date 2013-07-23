@@ -119,7 +119,7 @@ class CLAWorker
        "sender" => msg["body"]["sender"]["login"],
        "sender_url" => msg["body"]["sender"]["url"],
        "body" => msg["body"]["pull_request"]["body"],
-       "diff_url" => msg["body"]["pull_request"]["diff_url"]
+       "diff_url" => msg["body"]["pull_request"]["diff_url"],
        "base" => {
           "url" => msg["body"]["pull_request"]["base"]["repo"]["html_url"],
           "description" => msg["body"]["pull_request"]["base"]["repo"]["description"],
