@@ -134,12 +134,13 @@ class CLAWorker
           :owner_url => msg["body"]["pull_request"]["head"]["repo"]["owner"]["url"]
        }
     }
+    log(@logger, @queue, process_id, "The payload for the template is #{dat}")
     # Pull out the template from the checklist repo on github and process the variables using mustache
-    c = @github_client.contents("oreillymedia/checklists",:path => msg["checklist"])
+    c = @github_client.contents("oreillymedia/checklists","legal/cla_missing.md")
     checklist_text = Base64.decode64(c["content"])
     message_body = Mustache.render(checklist_text, dat).encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
     log(@logger, @queue, process_id, "Retrieveved checklist and performed processed it with mustache template")
-    @github_client.create_issue("odewahn/test-sqs-api", "#{message_body[2..40]}...", message_body)     
+    @github_client.create_issue(dat["base"]["full_name"], "ALERT! Atlas account required from #{dat["sender"]}", message_body)     
     
   end
 
