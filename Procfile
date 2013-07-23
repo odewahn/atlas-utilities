@@ -1,2 +1,2 @@
 web: rackup config.ru -p $PORT
-worker: env QUEUE=* bundle exec rake resque:work --trace
+worker: TERM_CHILD=1 env QUEUE=* bundle exec rake resque:work
