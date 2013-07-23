@@ -114,24 +114,24 @@ class CLAWorker
   
   def self.perform(process_id, msg)
     dat = {
-       :issue_url => msg["body"]["pull_request"]["issue_url"],
-       :sender => msg["body"]["sender"]["login"],
-       :sender_url => msg["body"]["sender"]["url"],
-       :body => msg["body"]["pull_request"]["body"],
-       :diff_url => msg["body"]["pull_request"]["diff_url"],
+       "issue_url" => msg["body"]["pull_request"]["issue_url"],
+       "sender" => msg["body"]["sender"]["login"],
+       "sender_url" => msg["body"]["sender"]["url"],
+       "body" => msg["body"]["pull_request"]["body"],
+       "diff_url" => msg["body"]["pull_request"]["diff_url"],
        "base" => {
-          :url => msg["body"]["pull_request"]["base"]["repo"]["html_url"],
-          :description => msg["body"]["pull_request"]["base"]["repo"]["description"],
-          :full_name => msg["body"]["pull_request"]["base"]["repo"]["full_name"],
-          :owner => msg["body"]["pull_request"]["base"]["repo"]["owner"]["login"],
-          :owner_url => msg["body"]["pull_request"]["base"]["repo"]["owner"]["url"]
+          "url" => msg["body"]["pull_request"]["base"]["repo"]["html_url"],
+          "description" => msg["body"]["pull_request"]["base"]["repo"]["description"],
+          "full_name" => msg["body"]["pull_request"]["base"]["repo"]["full_name"],
+          "owner" => msg["body"]["pull_request"]["base"]["repo"]["owner"]["login"],
+          "owner_url" => msg["body"]["pull_request"]["base"]["repo"]["owner"]["url"]
        },
        "request" => {
-          :url => msg["body"]["pull_request"]["head"]["repo"]["html_url"],
-          :description => msg["body"]["pull_request"]["head"]["repo"]["description"],
-          :full_name => msg["body"]["pull_request"]["head"]["repo"]["full_name"],
-          :owner => msg["body"]["pull_request"]["head"]["repo"]["owner"]["login"],
-          :owner_url => msg["body"]["pull_request"]["head"]["repo"]["owner"]["url"]
+          "url" => msg["body"]["pull_request"]["head"]["repo"]["html_url"],
+          "description" => msg["body"]["pull_request"]["head"]["repo"]["description"],
+          "full_name" => msg["body"]["pull_request"]["head"]["repo"]["full_name"],
+          "owner" => msg["body"]["pull_request"]["head"]["repo"]["owner"]["login"],
+          "owner_url" => msg["body"]["pull_request"]["head"]["repo"]["owner"]["url"]
        }
     }
     log(@logger, @queue, process_id, "The payload for the template is #{dat}")
