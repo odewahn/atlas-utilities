@@ -114,7 +114,6 @@ class CLAWorker
   
   def self.perform(process_id, msg)
     dat = {
-       "number" => msg["body"]["number"],
        "issue_url" => msg["body"]["pull_request"]["issue_url"],
        "sender" => msg["body"]["sender"]["login"],
        "sender_url" => msg["body"]["sender"]["url"],
@@ -141,7 +140,7 @@ class CLAWorker
     checklist_text = Base64.decode64(c["content"])
     message_body = Mustache.render(checklist_text, dat).encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
     log(@logger, @queue, process_id, "The message is #{message_body}")
-    @github_client.add_comment(dat["base"]["full_name"], dat["number"], message_body)     
+#    @github_client.add_comment(dat["base"]["full_name"], dat["number"], message_body)     
     
   end
 
