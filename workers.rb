@@ -114,24 +114,24 @@ class CLAWorker
   
   def self.perform(process_id, msg)
     dat = {
-       :issue_url => payload["pull_request"]["issue_url"],
-       :sender => payload["sender"]["login"],
-       :sender_url => payload["sender"]["url"],
-       :body => payload["pull_request"]["body"],
-       :diff_url => payload["pull_request"]["diff_url"],
+       :issue_url => msg["pull_request"]["issue_url"],
+       :sender => msg["sender"]["login"],
+       :sender_url => msg["sender"]["url"],
+       :body => msg["pull_request"]["body"],
+       :diff_url => msg["pull_request"]["diff_url"],
        "base" => {
-          :url => payload["pull_request"]["base"]["repo"]["html_url"],
-          :description => payload["pull_request"]["base"]["repo"]["description"],
-          :full_name => payload["pull_request"]["base"]["repo"]["full_name"],
-          :owner => payload["pull_request"]["base"]["repo"]["owner"]["login"],
-          :owner_url => payload["pull_request"]["base"]["repo"]["owner"]["url"]
+          :url => msg["pull_request"]["base"]["repo"]["html_url"],
+          :description => msg["pull_request"]["base"]["repo"]["description"],
+          :full_name => msg["pull_request"]["base"]["repo"]["full_name"],
+          :owner => msg["pull_request"]["base"]["repo"]["owner"]["login"],
+          :owner_url => msg["pull_request"]["base"]["repo"]["owner"]["url"]
        },
        "request" => {
-          :url => payload["pull_request"]["head"]["repo"]["html_url"],
-          :description => payload["pull_request"]["head"]["repo"]["description"],
-          :full_name => payload["pull_request"]["head"]["repo"]["full_name"],
-          :owner => payload["pull_request"]["head"]["repo"]["owner"]["login"],
-          :owner_url => payload["pull_request"]["head"]["repo"]["owner"]["url"]
+          :url => msg["pull_request"]["head"]["repo"]["html_url"],
+          :description => msg["pull_request"]["head"]["repo"]["description"],
+          :full_name => msg["pull_request"]["head"]["repo"]["full_name"],
+          :owner => msg["pull_request"]["head"]["repo"]["owner"]["login"],
+          :owner_url => msg["pull_request"]["head"]["repo"]["owner"]["url"]
        }
     }
     # Pull out the template from the checklist repo on github and process the variables using mustache
