@@ -156,7 +156,7 @@ class GaugesWorker
   @logger ||= Logger.new(STDOUT)   
   @client = Gauges.new(:token => ENV['GAUGES_TOKEN'])
   
-  uri = URI.parse(ENV["REDIS_URL"])
+  uri = URI.parse(ENV['REDIS_URL'])
   @redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
     
   def self.perform(process_id, msg)
