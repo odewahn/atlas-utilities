@@ -8,6 +8,7 @@ require 'resque'
 require 'resque-status'
 require 'gauges'
 require 'redis'
+require 'mail'
 
 Dotenv.load
 
@@ -23,10 +24,29 @@ class PermissionWorker
 
 	include Resque::Plugins::Status
   @queue = "permission_worker"
-  @logger ||= Logger.new(STDOUT)     
+  @logger ||= Logger.new(STDOUT)  
+  
+  # Configure the mailer
+  Mail.defaults do
+    delivery_method :smtp, {
+      :address              => "smtp.sendgrid.net",
+      :port                 => 587,
+      :user_name            => ENV['SENDGRID_USERNAME'],
+      :password             => ENV['SENDGRID_PASSWORD'],
+      :domain               => ENV['SENDGRID_DOMAIN'],
+      :authentication       => 'plain',
+      :enable_starttls_auto => true  }      
+  end   
+  
+  @github_client ||= Octokit::Client.new(:login => ENV["GITHUB_LOGIN"], :oauth_token => ENV["GITHUB_TOKEN"])
+  
 
   def self.perform(process_id, msg)
     log(@logger, @queue, process_id, "Attempting to add permission #{msg}")
+    # Grab the body of the email message
+    c = @github_client.contents("oreillymedia/checklists", {:path => "editorial/chimera_invite.md"})
+    msg_body = Base64.decode64(c["content"])
+    
     begin
        # need to create a unique, random screen name.  This is overridden once the user logs in, so we don't really care what it is
        random_name = (0...8).map{(65+rand(26)).chr}.join
@@ -38,6 +58,16 @@ class PermissionWorker
        # What if the book doesn't exist???
        permission = ChimeraEndpoint.create_book_permission({:user => {:email => msg["email"]}, :book => {:isbn => msg["isbn"]}, :type => "CollaboratorBookPermission"})
        log(@logger, @queue, process_id, "Created permission")
+       
+       mail = Mail.deliver do
+         to msg["email"]
+         from 'atlas@oreilly.com'
+         subject "Invitation to #{msg['isbn']}"
+         text_part do
+           body Mustache.render(msg_body, msg).encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
+         end
+       end
+       
     rescue Exception => e
        log(@logger, @queue, process_id, "ERROR #{e}")
        raise e

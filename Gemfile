@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-ruby '1.9.3'
 
 gem 'sinatra'
 gem 'resque'
@@ -9,3 +8,4 @@ gem 'octokit'
 gem 'mustache'
 gem 'resque-status'
 gem 'gauges'
+gem 'mail'
