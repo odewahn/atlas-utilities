@@ -62,7 +62,7 @@ class PermissionWorker
        mail = Mail.deliver do
          to msg["email"]
          from 'atlas@oreilly.com'
-         subject "Invitation to #{msg['isbn']}"
+         subject "You have been invited to an Atlas book"
          text_part do
            body Mustache.render(msg_body, msg).encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
          end
