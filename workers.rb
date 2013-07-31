@@ -47,6 +47,11 @@ class PermissionWorker
     c = @github_client.contents("oreillymedia/checklists", {:path => "editorial/chimera_invite.md"})
     msg_body = Base64.decode64(c["content"])
     
+    # Grab the metadata about the book and add it to the message
+    metadata = ChimeraEndpoint.get_book(msg["isbn"])
+    msg = metadata.merge(msg)
+    
+    
     begin
        # need to create a unique, random screen name.  This is overridden once the user logs in, so we don't really care what it is
        random_name = (0...8).map{(65+rand(26)).chr}.join
@@ -62,7 +67,7 @@ class PermissionWorker
        mail = Mail.deliver do
          to msg["email"]
          from 'atlas@oreilly.com'
-         subject "You have been invited to an Atlas book"
+         subject "You\'re invited to #{msg['title'] || 'an Atlas book'}"
          text_part do
            body Mustache.render(msg_body, msg).encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
          end
